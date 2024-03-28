@@ -1,0 +1,22 @@
+info = [
+{'switch' : 'LG01-dvs-1',	'group' : 'LG01-DP-01'},
+{'switch' : 'LG01-dvs-2',	'group' : 'LG01-DP-02'},
+{'switch' : 'LG02-dvs-1',	'group' : 'LG02-DP-01'},
+{'switch' : 'LG02-dvs-2',	'group' : 'LG02-DP-02'},
+{'switch' : 'LG03-dvs-1',	'group' : 'LG03-DP-01'},
+{'switch' : 'LG03-dvs-2',	'group' : 'LG03-DP-02'},
+{'switch' : 'LG04-dvs-1',	'group' : 'LG04-DP-01'},
+{'switch' : 'LG04-dvs-2',	'group' : 'LG04-DP-02'},
+{'switch' : 'LG05-dvs-1',	'group' : 'LG05-DP-01'},
+{'switch' : 'LG05-dvs-2',	'group' : 'LG05-DP-02'},
+{'switch' : 'LG06-dvs-1',	'group' : 'LG06-DP-01'},
+{'switch' : 'LG06-dvs-2',	'group' : 'LG06-DP-02'},
+{'switch' : 'LG07-dvs-1',	'group' : 'LG07-DP-01'},
+{'switch' : 'LG07-dvs-2',	'group' : 'LG07-DP-02'},
+{'switch' : 'LG08-dvs-1',	'group' : 'LG08-DP-01'},
+{'switch' : 'LG08-dvs-2',	'group' : 'LG08-DP-02'},
+{'switch' : 'LG09-dvs-1',	'group' : 'LG09-DP-01'},
+{'switch' : 'LG09-dvs-2',	'group' : 'LG09-DP-02'},
+{'switch' : 'LG10-dvs-1',	'group' : 'LG10-DP-01'},
+{'switch' : 'LG10-dvs-2',	'group' : 'LG10-DP-02'}
+]
