@@ -111,7 +111,7 @@ def find_portgroup_by_name(content, dvs, portgroup_name):
     else:
         return None
 
-def connect_vnic_to_portgroup(dvs_name,dvs_pg,vm_name,portgroup_key,vmnic_mac,portKey,vsp_ip,vsp_user,vsp_pass):
+def connect_vnic_to_portgroup(dvs_name,dvs_pg,vm_name,vmnic_mac,portKey,vsp_ip,vsp_user,vsp_pass):
     '''
     /variable:vm_name  /type:string /description: USe function -find_vm_by_name- and pass the string of the workloads vm_name
     variable: portgroup_key type: string description: Use -find_dvs_portgrpup_by_name function
@@ -123,11 +123,11 @@ def connect_vnic_to_portgroup(dvs_name,dvs_pg,vm_name,portgroup_key,vmnic_mac,po
 
     :variables:
         dvs_name            -type:string    'LG01-dvs-1'
-        dvs_pg              -type:string    'LG01-DP-02'
+        dvs_pg              -type:string    'LG01-DP-01'
         vm_name             -type:string    'LG01-WL01-V10-101'
         vmnic_mac           -type:string    '00:50:56:b6:5c:a6'
-        portKey             -type:string    '2'
-        vsp_ip              -type:string    '10.10.10.1'
+        portKey             -type:string    '1'
+        vsp_ip              -type:string    '10.250.0.50'
         vsp_user            -type:string    'adminsitrator@vsphere.local'
         vsp_pass            -type:string    'my_pass'
 
@@ -180,5 +180,5 @@ def connect_vnic_to_portgroup(dvs_name,dvs_pg,vm_name,portgroup_key,vmnic_mac,po
 
 
         #print("No vNIC found with MAC {} on the VM.".format(vmnic_mac))
-
+    Disconnect(service_instance)
     return None
