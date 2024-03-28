@@ -1,8 +1,11 @@
 from pyVmomi import vim
 from pyVim.task import WaitForTask
+from pyVim.connect import SmartConnect, Disconnect
 import time
-
+import ssl
 import logging
+
+
 
 def list_dvs_switches(content):
     dvs_view = content.viewManager.CreateContainerView(content.rootFolder, [vim.DistributedVirtualSwitch], True)
@@ -108,33 +111,72 @@ def find_portgroup_by_name(content, dvs, portgroup_name):
     else:
         return None
 
-def connect_vnic_to_portgroup(vm, portgroup_key, vmnic_mac, switch_uuid, portgroup_name, portKey):
+def connect_vnic_to_portgroup(dvs_name,dvs_pg,vm_name,portgroup_key,vmnic_mac,portKey,vsp_ip,vsp_user,vsp_pass):
     '''
-    variable: vm  type: vmware object description: USe function -find_vm_by_name- and pass the string of the workloads vm_name
+    /variable:vm_name  /type:string /description: USe function -find_vm_by_name- and pass the string of the workloads vm_name
     variable: portgroup_key type: string description: Use -find_dvs_portgrpup_by_name function
     variable: vmnic_mac  type: string description: macc address of vm port.
-    variable: switch_uuid type: string 
+    variable: switch_uuid type: string descriptio
     '''
-    devices = vm.config.hardware.device
-    for device in devices:
+    """
+    Connect vmnic to DVswitch.
 
-        if isinstance(device, vim.vm.device.VirtualVmxnet3):
-            if str(device.macAddress) == vmnic_mac:
-                nic_spec = vim.vm.device.VirtualDeviceSpec()
-                nic_spec.device = device
-                nic_spec.device.connectable.connected = True
-                nic_spec.device.deviceInfo.summary = portgroup_name
-                nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.edit
-                nic_spec.device.backing.port.switchUuid = switch_uuid
-                nic_spec.device.backing.port.portgroupKey = portgroup_key
-                nic_spec.device.backing.port.portKey = portKey
+    :variables:
+        dvs_name            -type:string    'LG01-dvs-1'
+        dvs_pg              -type:string    'LG01-DP-02'
+        vm_name             -type:string    'LG01-WL01-V10-101'
+        vmnic_mac           -type:string    '00:50:56:b6:5c:a6'
+        portKey             -type:string    '2'
+        vsp_ip              -type:string    '10.10.10.1'
+        vsp_user            -type:string    'adminsitrator@vsphere.local'
+        vsp_pass            -type:string    'my_pass'
 
-                config_spec = vim.vm.ConfigSpec(deviceChange=[nic_spec])
-                # Connect the port
-                task_number = vm.ReconfigVM_Task(config_spec)
-                response = wait_for_task(task_number)
-                print("Successfully connected vNIC with MAC {} to DVS port group.".format(vmnic_mac))
-                return
+    :return: None.
+    """
+    sslContext = ssl._create_unverified_context()
+    port="443"
+
+    # Create a connector to vsphere
+    service_instance = SmartConnect(
+                        host=vsp_ip,
+                        user=vsp_user,
+                        pwd=vsp_pass,
+                        port=port,
+                        sslContext=sslContext
+    )
+    if service_instance:
+
+        content = service_instance.RetrieveContent()
+        switch = find_dvs_by_name(content, dvs_name)
+        # Get switch UUID
+        switch_uuid' = switch.uuid
+
+        portgroup = find_dvs_portgroup_by_name(content, dvs_name, dvs_pg)
+        if portgroup:
+            vm = find_vm_by_name(content, vm_name)
+            if vm:
+                trash, portgroup_key = str(portgroup).split(':')
+                portgroup_key = portgroup_key[:-1]
+
+                devices = vm.config.hardware.device
+                for device in devices:
+                    if isinstance(device, vim.vm.device.VirtualVmxnet3):
+                        if str(device.macAddress) == vmnic_mac:
+                            nic_spec = vim.vm.device.VirtualDeviceSpec()
+                            nic_spec.device = device
+                            nic_spec.device.connectable.connected = True
+                            nic_spec.device.deviceInfo.summary = dvs_pg
+                            nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.edit
+                            nic_spec.device.backing.port.switchUuid = switch_uuid
+                            nic_spec.device.backing.port.portgroupKey = portgroup_key
+                            nic_spec.device.backing.port.portKey = portKey
+
+                            config_spec = vim.vm.ConfigSpec(deviceChange=[nic_spec])
+                            # Connect the port
+                            task_number = vm.ReconfigVM_Task(config_spec)
+                            response = wait_for_task(task_number)
+                            print("Successfully connected vNIC with MAC {} to DVS port group.".format(vmnic_mac))
+                            return
 
 
         #print("No vNIC found with MAC {} on the VM.".format(vmnic_mac))
