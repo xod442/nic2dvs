@@ -112,12 +112,6 @@ def find_portgroup_by_name(content, dvs, portgroup_name):
         return None
 
 def connect_vnic_to_portgroup(dvs_name,dvs_pg,vm_name,vmnic_mac,portKey,vsp_ip,vsp_user,vsp_pass):
-    '''
-    /variable:vm_name  /type:string /description: USe function -find_vm_by_name- and pass the string of the workloads vm_name
-    variable: portgroup_key type: string description: Use -find_dvs_portgrpup_by_name function
-    variable: vmnic_mac  type: string description: macc address of vm port.
-    variable: switch_uuid type: string descriptio
-    '''
     """
     Connect vmnic to DVswitch.
 
