@@ -143,7 +143,7 @@ def connect_vnic_to_portgroup(dvs_name,dvs_pg,vm_name,vmnic_mac,portKey,vsp_ip,v
         content = service_instance.RetrieveContent()
         switch = find_dvs_by_name(content, dvs_name)
         # Get switch UUID
-        switch_uuid' = switch.uuid
+        switch_uuid = switch.uuid
 
         portgroup = find_dvs_portgroup_by_name(content, dvs_name, dvs_pg)
         if portgroup:
