@@ -4,8 +4,57 @@ from pyVim.connect import SmartConnect, Disconnect
 import time
 import ssl
 import logging
+import atexit
 
+def connect_to_vcenter(host, user, password, port=443):
+    """
+    Connect to vCenter server
+    """
+    try:
+        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+        context.verify_mode = ssl.CERT_NONE
+        service_instance = connect.SmartConnect(host=host,
+                                                user=user,
+                                                pwd=password,
+                                                port=port,
+                                                sslContext=context)
+        atexit.register(connect.Disconnect, service_instance)
+        return service_instance.RetrieveContent()
+    except Exception as e:
+        print("Unable to connect to vCenter server:", str(e))
+        return None
 
+def find_snapshots(vm, snapshot_name):
+    """
+    Find all snapshots with a specific name for a VM
+    """
+    snapshots = []
+    if vm.snapshot:
+        snapshot_stack = [(snapshot, []) for snapshot in vm.snapshot.rootSnapshotList]
+        while snapshot_stack:
+            current_snapshot, snapshot_path = snapshot_stack.pop()
+            snapshot_path.append(current_snapshot)
+            if current_snapshot.name == snapshot_name:
+                snapshots.append(current_snapshot)
+            snapshot_stack.extend([(child, snapshot_path[:]) for child in current_snapshot.childSnapshotList])
+    return snapshots
+
+def delete_snapshots(snapshots):
+    """
+    Delete snapshots
+    """
+    for snapshot in snapshots:
+        task = snapshot.snapshot.RemoveSnapshot_Task(removeChildren=False)
+        while task.info.state == vim.TaskInfo.State.running:
+            time.sleep(1)
+
+def create_snapshot(vm, snapshot_name):
+    """
+    Create a new snapshot for a VM
+    """
+    task = vm.CreateSnapshot(snapshot_name, memory=False, quiesce=False)
+    while task.info.state == vim.TaskInfo.State.running:
+        time.sleep(1)
 
 def list_dvs_switches(content):
     dvs_view = content.viewManager.CreateContainerView(content.rootFolder, [vim.DistributedVirtualSwitch], True)
